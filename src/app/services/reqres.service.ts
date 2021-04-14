@@ -1,27 +1,69 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { User } from '../user';
+
+import { catchError, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReqresService {
+  private url = 'api/users';
+
+  httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  };
+
   constructor( private http: HttpClient ) { }
 
-  makeGetRequest( request: string ) {
-    const PATH = 'https://reqres.in/api/';
-
-    return this.http.get(`${ PATH }${ request }`);
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>(this.url)
+      .pipe(
+        catchError(this.handleError<User[]>('getUsers', []))
+      );
   }
 
-  getUsers( page: any = null ) {
-    if ( !page ) {
-      return this.makeGetRequest( 'users' );
-    } else {
-      return this.makeGetRequest( `users?page=${ page }` );
-    }
+  getUser( id: number ): Observable<User> {
+    const url = `${this.url}/${id}`;
+
+    return this.http.get<User>(url)
+      .pipe(
+        catchError(this.handleError<User>(`getUser id=${id}`))
+      );
   }
 
-  getUser( id: number ) {
-    return this.makeGetRequest( `users/${ id }` );
+  updateUser(user: User): any {
+    return this.http.put(this.url, user, this.httpOptions)
+      .pipe(
+        catchError(this.handleError<User>('updateUser'))
+      );
+  }
+
+  addUser( user: User ): Observable<User> {
+    return this.http.post<User>(this.url, user, this.httpOptions)
+      .pipe(
+        catchError(this.handleError<User>('addUser'))
+      );
+  }
+
+  deleteUser( user: User ): Observable<User> {
+    const url = `${this.url}/${user.id}`;
+
+    return this.http.delete<User>(url, this.httpOptions)
+      .pipe(
+        catchError(this.handleError<User>('deleteUser id=${user.id}'))
+      );
+  }
+
+  private handleError<T>(operation = 'operation', result?: T): any {
+    return (error: any): Observable<T> => {
+
+      // TODO: send the error to remote logging infrastructure
+      console.error(error); // log to console instead
+
+      // Let the app keep running by returning an empty result.
+      return of(result as T);
+    };
   }
 }
