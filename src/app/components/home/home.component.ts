@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ReqresService } from '../../services/reqres.service';
 import { Router } from '@angular/router';
+import { ReqresService } from '../../services/reqres.service';
+import { User } from '../../user';
 
 @Component({
   selector: 'app-home',
@@ -8,51 +9,43 @@ import { Router } from '@angular/router';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  users: any[] = [];
-  config: any = {
-    'page': 1,
-    'per_page': 3,
-    'total': 12,
-    'total_pages': 4
-  };
+  users: User[] = [];
   loading: boolean;
 
-  constructor( private reqresService: ReqresService, private router: Router ) {
+  constructor(
+    private reqresService: ReqresService,
+    private router: Router
+  ) {
     this.getUsers();
   }
 
-  getUsers() {
-    this.getUsersData();
-  }
+  ngOnInit(): void {}
 
-  setPage( page: number ) {
-    this.getUsersData( page );
+  getUsers() {
+    this.loading = true;
+
+    this.reqresService.getUsers().subscribe(
+      (res: User[]) => {
+        this.users = res;
+        this.loading = false;
+      },
+      (err) => {
+        console.error(err);
+      }
+    );
   }
 
   userDetails( id: number ) {
     this.router.navigate( ['user', id] );
   }
 
-  getUsersData( page = null ) {
-    this.loading = true;
-    this.reqresService.getUsers( page )
-      .subscribe( (res: any) => {
-        this.users = res.data;
-
-        if ( page ) {
-          this.config.page = res.page;
-          this.config.per_page = res.per_page;
-          this.config.total = res.total;
-          this.config.total_pages = res.total_pages;
-        }
-
-        this.loading = false;
-      }, (err) => {
-        console.log( err );
-      });
+  addUser(): void {
+    this.router.navigate( ['add'] );
   }
 
-  ngOnInit() {
+  deleteUser(user) {
+    this.users = this.users.filter( u => u !== user );
+    this.reqresService.deleteUser(user).subscribe();
   }
 
 }
