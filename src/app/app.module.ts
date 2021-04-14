@@ -3,30 +3,30 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { HomeComponent } from './components/home/home.component';
 import { AboutComponent } from './components/about/about.component';
 import { ContactComponent } from './components/contact/contact.component';
-import { HomeComponent } from './components/home/home.component';
 import { AppRoutingModule } from './app.routes';
+
 import { HttpClientModule } from '@angular/common/http';
+
+import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
+import { InMemoryDataService } from './services/in-memory-data.service';
 import { UserDetailComponent } from './components/user/user-detail.component';
-
-// Pipes
-import { NoimagePipe } from './pipes/noimage.pipe';
-
-// Other imports
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { PagerComponent } from './components/pager/pager.component';
+import { UserAddComponent } from './components/user/user-add.component';
 import { LoadingComponent } from './components/shared/loading/loading.component';
+import { NoimagePipe } from './pipes/noimage.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavbarComponent,
+    HomeComponent,
     AboutComponent,
     ContactComponent,
-    HomeComponent,
     UserDetailComponent,
-    PagerComponent,
+    UserAddComponent,
     LoadingComponent,
     NoimagePipe
   ],
@@ -34,10 +34,13 @@ import { LoadingComponent } from './components/shared/loading/loading.component'
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
+    HttpClientInMemoryWebApiModule.forRoot(
+      InMemoryDataService, { dataEncapsulation: false, delay: 1500 }
+    ),
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [ ],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
